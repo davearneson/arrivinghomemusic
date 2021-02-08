@@ -12,11 +12,11 @@
 <h2 id="home-assistant-helpers">Home Assistant Helpers</h2>
 <p>I used HA’s helpers to set up an input_text entity in the UI by going to Configuration/Helpers and clicking the add button, then “Text.” I then added a name, in my case “Arriving Home Music”. This entity will be used to type text for whatever music or audio I want sent to the Alexa Music Groups. I changed the icon to “mdi:music”</p>
 <p><img src="https://i.imgur.com/hDv1B0q.png" alt="Helper Setup for Arriving Home - Whole Home Alexa Audio"></p>
-<h1 id="configuration.yaml">configuration.yaml</h1>
-<p>There is one section for Actionable Notifications that has to be added to configuration.yaml for this project:</p>
-<h2 id="actionable-notifications">Actionable Notifications</h2>
-<p>This part of the project requires that you have set up actionable notifications. I had some trouble doing this when I first did it for another project, but it’s fairly well documented here: <a href="https://companion.home-assistant.io/docs/notifications/actionable-notifications/">https://companion.home-assistant.io/docs/notifications/actionable-notifications/</a></p>
+<h1 id="actionable-notification">Actionable Notification</h1>
+<p>I have an iPhone, so this part of the uses actionable notifications for iOS. It’s fairly well documented here: <a href="https://companion.home-assistant.io/docs/notifications/actionable-notifications/">https://companion.home-assistant.io/docs/notifications/actionable-notifications/</a></p>
 <p><img src="https://i.imgur.com/QmAIbKf.jpg" alt="Arriving Home Music Actionable Notification"></p>
+<h2 id="configuration.yaml">configuration.yaml</h2>
+<p>I added one section to configuration.yaml for Actionable Notifications for this project:</p>
 <pre><code># configuration.yaml
 
 ios:
@@ -37,6 +37,7 @@ ios:
           - identifier: 'RANDOM_MUSIC'
             title: 'Random'
 </code></pre>
+<p>The “textInput” behavior allows me to respond inside the actionable notification with text that will be sent to Home Assistant:</p>
 <p><img src="https://i.imgur.com/ZlgSEsK.jpg" alt="Arriving Home Music Actionable Notification"></p>
 <h1 id="automations">Automations</h1>
 <p>I created three automations for this project, and I’ll do my best to explain them and the logic behind them:</p>
@@ -109,7 +110,7 @@ ios:
   condition: []
   action:
   - data_template:
-	  entity_id: input_text.alex_arriving_home_music
+	  entity_id: input_text.arriving_home_music
 	  value: &gt;-
 	    {% if trigger.event.data["actionName"] == "JAZZ_MUSIC" %}
 	      Jazz Radio on Apple Music
@@ -124,7 +125,7 @@ ios:
   mode: single
 </code></pre>
 <h2 id="play-music-automation">Play Music Automation</h2>
-<p>Finally, this last automation is what sets off the actual music when I get home. It’s simply using HA zones and my iOS device to see when I enter the “home” zone. I have it time-conditioned, and conditioned for when my spouse is not already home, because they would probably not appreciate being blasted with my music if they’re home watching TV or just generally minding their own business.</p>
+<p>Finally, this last automation is what sets off the actual music when I get home from work. It’s simply using HA zones and my iOS device to see when I enter the “home” zone. I have it time-conditioned, and conditioned for when my spouse is not already home, because they would probably not appreciate being blasted with my music if they’re home watching TV or just generally minding their own business.</p>
 <pre><code># automations.yaml
 
 - alias: Arriving Home Play Music
@@ -193,5 +194,5 @@ stop_alexa_music:
 <p><img src="https://i.imgur.com/wuJB5lk.png" alt="Stop Music as a button in Lovelace"><br>
 This one is just sending “stop music” commands to all possible groups.</p>
 <h1 id="final-thoughts">Final Thoughts</h1>
-<p>I haven’t decided whether I want to create another automation to reset the music choice each day, or if I want to be able to leave it on a selection for as long as I feel like it. Overall, I’m really happy with the setup so far.</p>
+<p>I went back and forth on whether I wanted to create another automation to reset the music choice each day, or if I wanted to be able to leave it on a selection for as long as I feel like it. For now, I’m sticking with letting the previous day’s choice hold over until I decide to change it. I’ve had this set up for about a week so far, and overall, I’m really happy with the setup.</p>
 
