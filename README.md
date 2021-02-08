@@ -1,23 +1,31 @@
----
+# Arriving Home -  Play to Alexa Multi Room Audio Setup
 
+![Arriving Home - Whole Home Alexa Audio](https://i.imgur.com/cuPjrpG.png)
 
----
+This is building off of [this previous project of mine](https://github.com/davearneson/alexawholehome) to create a system of automations to automatically play a variety of music of my choosing on my Alexa Multi-Room Music Groups when I get home from work.
 
-<h1 id="arriving-home----play-to-alexa-multi-room-audio-setup">Arriving Home -  Play to Alexa Multi Room Audio Setup</h1>
-<p><img src="https://i.imgur.com/cuPjrpG.png" alt="Arriving Home - Whole Home Alexa Audio"></p>
-<p>This is building off of <a href="https://github.com/davearneson/alexawholehome">this previous project of mine</a> to create a system of automations to automatically play a variety of music for me when I get home.</p>
-<h2 id="alexa-media-player-setup">Alexa Media Player Setup</h2>
-<p>This project uses the <a href="https://github.com/custom-components/alexa_media_player">Alexa Media Player</a> custom component to interact with my Alexa Devices. I won’t go into detail on setting this up, because I haven’t deviated any from the standard setup for this custom component.</p>
-<p>As I mentioned in the previous project, <a href="https://github.com/custom-components/alexa_media_player/wiki#play-in-alexa-groups">there is currently a limitation to Alexa Media Player</a> which means you can start and stop music to individual echo devices, but you can’t send music directly to an Alexa Multi-Room Music Group. The workaround that I’ve found to be most consistent - which I use in this project - is sending a custom simulated voice command to Alexa through the component, like “Play Jazz on the Downstairs Music Group.”</p>
-<h2 id="home-assistant-helpers">Home Assistant Helpers</h2>
-<p>I used HA’s helpers to set up an input_text entity in the UI by going to Configuration/Helpers and clicking the add button, then “Text.” I then added a name, in my case “Arriving Home Music”. This entity will be used to type text for whatever music or audio I want sent to the Alexa Music Groups. I changed the icon to “mdi:music”</p>
-<p><img src="https://i.imgur.com/hDv1B0q.png" alt="Helper Setup for Arriving Home - Whole Home Alexa Audio"></p>
-<h1 id="actionable-notification">Actionable Notification</h1>
-<p>I have an iPhone, so this part of the uses actionable notifications for iOS. It’s fairly well documented here: <a href="https://companion.home-assistant.io/docs/notifications/actionable-notifications/">https://companion.home-assistant.io/docs/notifications/actionable-notifications/</a></p>
-<p><img src="https://i.imgur.com/QmAIbKf.jpg" alt="Arriving Home Music Actionable Notification"></p>
-<h2 id="configuration.yaml">configuration.yaml</h2>
-<p>I added one section to configuration.yaml for Actionable Notifications for this project:</p>
-<pre><code># configuration.yaml
+## Alexa Media Player Setup
+
+This project uses the [Alexa Media Player](https://github.com/custom-components/alexa_media_player) custom component to interact with my Alexa Devices. I won't go into detail on setting this up, because I haven't deviated any from the standard setup for this custom component.
+
+As I mentioned in the previous project, [there is currently a limitation to Alexa Media Player](https://github.com/custom-components/alexa_media_player/wiki#play-in-alexa-groups) which means you can start and stop music to individual echo devices, but you can't send music directly to an Alexa Multi-Room Music Group. The workaround that I've found to be most consistent - which I use in this project - is sending a custom simulated voice command to Alexa through the component, like "Play Jazz on the Downstairs Music Group."
+
+## Home Assistant Helpers
+
+I used HA’s helpers to set up an input_text entity in the UI by going to Configuration/Helpers and clicking the add button, then “Text.” I then added a name, in my case “Arriving Home Music”. This entity will be used to type text for whatever music or audio I want sent to the Alexa Music Groups. I changed the icon to "mdi:music"
+
+![Helper Setup for Arriving Home - Whole Home Alexa Audio](https://i.imgur.com/hDv1B0q.png)
+# Actionable Notification
+I have an iPhone, so this part of the uses actionable notifications for iOS. The process to set this up is well documented here: https://companion.home-assistant.io/docs/notifications/actionable-notifications/
+
+![Arriving Home Music Actionable Notification](https://i.imgur.com/QmAIbKf.jpg)
+
+## configuration.yaml
+
+I added one section to configuration.yaml for Actionable Notifications for this project:
+
+```
+# configuration.yaml
 
 ios:
   push:
@@ -36,14 +44,20 @@ ios:
             title: 'Classical'
           - identifier: 'RANDOM_MUSIC'
             title: 'Random'
-</code></pre>
-<p>The “textInput” behavior allows me to respond inside the actionable notification with text that will be sent to Home Assistant:</p>
-<p><img src="https://i.imgur.com/ZlgSEsK.jpg" alt="Arriving Home Music Actionable Notification"></p>
-<h1 id="automations">Automations</h1>
-<p>I created three automations for this project, and I’ll do my best to explain them and the logic behind them:</p>
-<h2 id="what-music-do-you-want-notification">What Music Do You Want? Notification</h2>
-<p>The first few automation sends the actionable notification at prescribed time, about 15 minutes before I leave work each weekday.</p>
-<pre><code># automations.yaml
+```
+The "textInput" behavior allows me to respond inside the actionable notification with text that will be sent to Home Assistant:
+
+![Arriving Home Music Actionable Notification](https://i.imgur.com/ZlgSEsK.jpg)
+# Automations
+
+I created three automations for this project, and I’ll do my best to explain them and the logic behind them:
+
+## What Music Do You Want? Notification
+
+The first few automation sends the actionable notification at prescribed time, about 15 minutes before I leave work each weekday.
+
+```
+# automations.yaml
 
 - alias: Arriving Home What Music?
   description: ''
@@ -70,11 +84,14 @@ ios:
       title: Arriving Home Music
     service: notify.mobile_app_my_iphone
   mode: single
-</code></pre>
-<p><img src="https://i.imgur.com/ZMAB6TL.jpg" alt="Arriving Home Music Actionable Notification"></p>
-<h2 id="automation-components">Automation Components</h2>
-<p>This automation to process the return from the Actionable Notification is where it gets fun. I set the triggers for this one up in the UI to make things easier - there are triggers for each of the actionable notification returns I set up earlier (JAZZ_MUSIC, CLASSICAL_MUSIC,  RANDOM_MUSIC, and INPUT_MUSIC). Then I set up the action to fire a service, using as an if statement as the data value (I had to set this up in YAML, because it uses “data_template”). This is using the input_text.set_value service to change the helper I created earlier to whatever my response from the actionable notification was.</p>
-<pre><code># automations.yaml
+```
+![Arriving Home Music Actionable Notification](https://i.imgur.com/ZMAB6TL.jpg)
+## Automation Components
+
+This automation to process the return from the Actionable Notification is where it gets fun. I set the triggers for this one up in the UI to make things easier - there are triggers for each of the actionable notification returns I set up earlier (JAZZ_MUSIC, CLASSICAL_MUSIC,  RANDOM_MUSIC, and INPUT_MUSIC). Then I set up the action to fire a service, using as an if statement as the data value (I had to set this up in YAML, because it uses "data_template"). This is using the input_text.set_value service to change the helper I created earlier to whatever my response from the actionable notification was.
+
+```
+# automations.yaml
 
 - alias: Arriving Home What Music? - Component to Set Text Input
   description: ''
@@ -111,7 +128,7 @@ ios:
   action:
   - data_template:
 	  entity_id: input_text.arriving_home_music
-	  value: &gt;-
+	  value: >-
 	    {% if trigger.event.data["actionName"] == "JAZZ_MUSIC" %}
 	      Jazz Radio on Apple Music
 	    {% elif trigger.event.data["actionName"] == "CLASSICAL_MUSIC" %}
@@ -123,10 +140,12 @@ ios:
 	    {% endif %}
 	service: input_text.set_value
   mode: single
-</code></pre>
-<h2 id="play-music-automation">Play Music Automation</h2>
-<p>Finally, this last automation is what sets off the actual music when I get home from work. It’s simply using HA zones and my iOS device to see when I enter the “home” zone. I have it time-conditioned, and conditioned for when my spouse is not already home, because they would probably not appreciate being blasted with my music if they’re home watching TV or just generally minding their own business.</p>
-<pre><code># automations.yaml
+```
+## Play Music Automation
+Finally, this last automation is what sets off the actual music when I get home from work. It's simply using HA zones and my iOS device to see when I enter the "home" zone. I have it time-conditioned, and conditioned for when my spouse is not already home, because they would probably not appreciate being blasted with my music if they're home watching TV or just generally minding their own business.
+
+```
+# automations.yaml
 
 - alias: Arriving Home Play Music
   description: ''
@@ -151,10 +170,12 @@ ios:
       media_content_id: play {{ states('input_text.arriving_home_music') }} on
         the downstairs group
       media_content_type: custom
-</code></pre>
-<h1 id="scripts">Scripts</h1>
-<p>I also created one script for use in this project. This is an (overkill) fail-safe to make sure all music and audio stops if I want it to stop. I made this as a script so I could control it through automations and manual input buttons in the UI.</p>
-<pre><code>##############################################################################        
+```
+
+# Scripts
+I also created one script for use in this project. This is an (overkill) fail-safe to make sure all music and audio stops if I want it to stop. I made this as a script so I could control it through automations and manual input buttons in the UI.
+```
+##############################################################################        
 #################Script to stop all audio on all groups#######################
 ##############################################################################
 stop_alexa_music:
@@ -190,9 +211,9 @@ stop_alexa_music:
         entity_id: media_player.echo_link
         media_content_id: stop music
         media_content_type: custom
-</code></pre>
-<p><img src="https://i.imgur.com/wuJB5lk.png" alt="Stop Music as a button in Lovelace"><br>
-This one is just sending “stop music” commands to all possible groups.</p>
-<h1 id="final-thoughts">Final Thoughts</h1>
-<p>I went back and forth on whether I wanted to create another automation to reset the music choice each day, or if I wanted to be able to leave it on a selection for as long as I feel like it. For now, I’m sticking with letting the previous day’s choice hold over until I decide to change it. I’ve had this set up for about a week so far, and overall, I’m really happy with the setup.</p>
+   ```
 
+![Stop Music as a button in Lovelace](https://i.imgur.com/wuJB5lk.png)
+This button is just sending "stop music" commands to all possible groups.
+# Final Thoughts
+I went back and forth on whether I wanted to create another automation to reset the music choice each day, or if I wanted to be able to leave it on a selection for as long as I feel like it. For now, I'm sticking with letting the previous day's choice hold over until I decide to change it. I've had this set up for about a week so far, and overall, I'm really happy with the setup.
